@@ -1,0 +1,129 @@
+import streamlit as st
+
+# Diccionario de patadas WT con equivalencias y videos (ejemplo con enlaces de YouTube)
+patadas_wt = {
+    "Ap Chagi": {
+        "coreano": "Ap Chagi",
+        "español": "Patada frontal",
+        "descripcion": "Patada directa hacia adelante con la planta del pie, utilizada para atacar el abdomen o el pecho del oponente.",
+        "video": "https://www.youtube.com/watch?v=QX2zAAwTu-o"
+    },
+    "Dollyo Chagi": {
+        "coreano": "Dollyo Chagi",
+        "español": "Patada semicircular",
+        "descripcion": "Patada giratoria que impacta con el empeine, dirigida al costado del oponente.",
+        "video": "https://www.youtube.com/watch?v=7xBQBSyiwGA"
+    },
+    "Neryo Chagi": {
+        "coreano": "Neryo Chagi",
+        "español": "Patada descendente",
+        "descripcion": "Patada hacia abajo con el talón, usada para golpear la cabeza o el hombro del oponente.",
+        "video": "https://www.youtube.com/watch?v=BMQC9pmX28U"
+    }
+}
+
+# Rutinas por grupo etario y objetivo
+rutinas_por_edad = {
+    "adolescente": {
+        "técnica": [
+            {"nombre": "Ap Chagi", "repeticiones": "2x8", "duración": "4 min", "nivel": "Kup 10"},
+            {"nombre": "Dollyo Chagi", "repeticiones": "2x6", "duración": "4 min", "nivel": "Kup 9"}
+        ],
+        "flexibilidad": [
+            {"nombre": "Estiramientos dinámicos", "repeticiones": "2x20 seg", "duración": "3 min", "nivel": "General"}
+        ],
+        "resistencia": [
+            {"nombre": "Sombra con patadas", "repeticiones": "2x1 min", "duración": "3 min", "nivel": "General"}
+        ]
+    },
+    "adulto joven": {
+        "técnica": [
+            {"nombre": "Ap Chagi", "repeticiones": "3x10", "duración": "5 min", "nivel": "Kup 8"},
+            {"nombre": "Dollyo Chagi", "repeticiones": "3x8", "duración": "6 min", "nivel": "Kup 7"},
+            {"nombre": "Neryo Chagi", "repeticiones": "2x6", "duración": "5 min", "nivel": "Kup 6"}
+        ],
+        "flexibilidad": [
+            {"nombre": "Estiramientos activos", "repeticiones": "2x30 seg", "duración": "4 min", "nivel": "General"}
+        ],
+        "resistencia": [
+            {"nombre": "Cardio explosivo", "repeticiones": "4x30 seg", "duración": "6 min", "nivel": "General"}
+        ]
+    },
+    "adulto medio": {
+        "técnica": [
+            {"nombre": "Ap Chagi", "repeticiones": "2x6", "duración": "4 min", "nivel": "Kup 8"}
+        ],
+        "flexibilidad": [
+            {"nombre": "Movilidad articular", "repeticiones": "3x10", "duración": "5 min", "nivel": "General"}
+        ],
+        "resistencia": [
+            {"nombre": "Caminar + patadas suaves", "repeticiones": "10 min", "duración": "10 min", "nivel": "General"}
+        ]
+    },
+    "adulto mayor": {
+        "técnica": [
+            {"nombre": "Ap Chagi", "repeticiones": "1x5", "duración": "3 min", "nivel": "Básico"}
+        ],
+        "flexibilidad": [
+            {"nombre": "Estiramientos suaves", "repeticiones": "3x15 seg", "duración": "5 min", "nivel": "General"}
+        ],
+        "resistencia": [
+            {"nombre": "Marcha ligera", "repeticiones": "5 min", "duración": "5 min", "nivel": "General"}
+        ]
+    }
+}
+
+# Clasificación por edad
+def clasificar_edad(edad):
+    if edad < 18:
+        return "adolescente"
+    elif edad < 35:
+        return "adulto joven"
+    elif edad < 50:
+        return "adulto medio"
+    else:
+        return "adulto mayor"
+
+# Mostrar info técnica de patada
+def mostrar_info_patada(nombre):
+    info = patadas_wt.get(nombre)
+    if info:
+        st.markdown(f"**{info['español']}** ({info['coreano']})")
+        st.write(info['descripcion'])
+        if "video" in info:
+            st.video(info["video"])
+    else:
+        st.write("Ejercicio general o no clasificado como patada WT.")
+
+# Generar rutina
+def generar_rutina(edad, nivel, objetivo):
+    grupo = clasificar_edad(edad)
+    return rutinas_por_edad.get(grupo, {}).get(objetivo, [])
+
+# Interfaz Streamlit
+st.set_page_config(page_title="Taekwondo Trainer", layout="centered")
+st.title("👊 Generador de Rutinas de Taekwondo")
+st.markdown("Rutinas personalizadas según edad, cinturón y objetivo, con demostraciones en video 🎥.")
+
+# Entrada de edad
+edad = st.number_input("📌 Ingresa tu edad", min_value=5, max_value=90, value=25)
+
+# Lista de niveles de cinturón
+niveles_cinturon = ["blanco", "amarillo", "verde", "azul", "rojo", "negro"]
+nivel = st.selectbox("📌 Nivel de cinturón", niveles_cinturon)
+
+# Selección de objetivo
+objetivo = st.selectbox("📌 Objetivo de entrenamiento", ["técnica", "flexibilidad", "resistencia"])
+
+# Botón para generar rutina
+if st.button("Generar rutina"):
+    rutina = generar_rutina(edad, nivel, objetivo)
+    grupo = clasificar_edad(edad)
+    st.subheader(f"🏋️ Rutina para edad {edad} ({grupo}), cinturón {nivel}, objetivo: {objetivo}")
+    
+    for i, ejercicio in enumerate(rutina, start=1):
+        with st.expander(f"{i}. {ejercicio['nombre']}"):
+            st.write(f"**Repeticiones**: {ejercicio['repeticiones']}")
+            st.write(f"**Duración estimada**: {ejercicio['duración']}")
+            st.write(f"**Nivel técnico sugerido**: {ejercicio['nivel']}")
+            mostrar_info_patada(ejercicio["nombre"])
